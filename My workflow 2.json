@@ -1,0 +1,268 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -432,
+        0
+      ],
+      "id": "642cc12f-0e8b-4703-9d63-b6d63f021269",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qbb295TWq6MYDp9c",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.snippet }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "job",
+              "description": "if any email has job offer or relavent to job then separate it "
+            },
+            {
+              "category": "internship ",
+              "description": "if any email has internship offer or relavent to internship then separate it "
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        -176,
+        16
+      ],
+      "id": "a9f047d0-0bed-4e43-98ec-718230e0da88",
+      "name": "Text Classifier"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        176
+      ],
+      "id": "dbda9a98-08cd-4c2b-bb52-f90d5c7524e3",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "W9aqu1CRH2Moomup",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=i want you to copywrite message and work as an my personal assistant and generate reply of this email \n {{ $json.snippet }}\n\nyou have to give me email subject separate and email response separate "
+            }
+          ]
+        },
+        "simplify": false,
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        192,
+        -96
+      ],
+      "id": "680e4b57-4d08-4331-9f98-7b866b784948",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "dGuGN67yzVkvjG6b",
+          "name": "OpenAI account 10"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=i want you to copywrite message and work as an my personal assistant and generate reply of this email \n {{ $('Gmail Trigger').item.json.snippet }}\n\nyou have to give me email subject separate and email response separate "
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        192,
+        112
+      ],
+      "id": "235cd3e2-c6b7-4f83-b821-116a5a5e0b76",
+      "name": "Message a model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "dGuGN67yzVkvjG6b",
+          "name": "OpenAI account 10"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $('Gmail Trigger').item.json.Subject }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        560,
+        -96
+      ],
+      "id": "4245a37b-3256-4c72-a222-4dce52ec5f58",
+      "name": "Create a draft",
+      "webhookId": "7f4fc274-a0fe-4ec0-a40c-6eac8b83bcd3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qbb295TWq6MYDp9c",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $('Gmail Trigger').item.json.Subject }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        560,
+        112
+      ],
+      "id": "2de6700e-f633-4748-8e5e-e3b274dc7721",
+      "name": "Create a draft1",
+      "webhookId": "70b375eb-ef97-4097-934f-fb3eb7ad5964",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "qbb295TWq6MYDp9c",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "Create a draft1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "b8b3f9ba-b52f-4e63-84aa-7be4623d63a8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5698323bf3f2ebee9f3ed5b37a093b0d745dcce2fc07f4838d87bbbba86a87cc"
+  },
+  "nodeGroups": [],
+  "id": "tTnGZyDctLRvUV4r",
+  "tags": []
+}
